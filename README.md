@@ -8,6 +8,7 @@
 ### Objective
 Analyze and mitigate bias in credit scoring models, and **compare performance and fairness before and after mitigation**.
 
+
 # Import libraries and install dependencies if missing
 !pip install --quiet numpy pandas scikit-learn matplotlib seaborn xgboost fairlearn
 
@@ -27,6 +28,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings
 warnings.filterwarnings('ignore')
+
 
 from sklearn.datasets import fetch_openml
 
@@ -52,8 +54,7 @@ else:
 
 print("Dataset shape:", df.shape)
 df.head()
-Fetching German Credit dataset...
-Dataset shape: (1000, 22)
+
 
 # Preprocessing
 numeric_features = df.select_dtypes(include=['int64','float64']).columns.tolist()
@@ -69,6 +70,7 @@ preprocessor = ColumnTransformer(
         ('num', numeric_transformer, numeric_features),
         ('cat', categorical_transformer, categorical_features)
     ])
+
 
 X = df.drop(columns=['target'])
 y = df['target']
@@ -89,10 +91,7 @@ for name, model in models.items():
     print(f"Training {name}...")
     model.fit(X_train, y_train)
 print("Training complete.")
-Training LogisticRegression...
-Training RandomForest...
-Training XGBoost...
-Training complete.
+
 
 print("Applying fairness mitigation...")
 X_train_trans = preprocessor.fit_transform(X_train)
@@ -121,7 +120,7 @@ mit_res = {
 }
 
 pd.DataFrame([mit_res], index=['After Mitigation']).T
-Applying fairness mitigation...
+
 
 # --- Comparison: Before vs After Mitigation ---
 baseline_metrics = results['LogisticRegression']
@@ -152,39 +151,6 @@ print("- ↓ SPD & EOD after mitigation => improved fairness.")
 print("- DI closer to 1 => improved fairness balance.")
 print("- Slight accuracy drop acceptable for ethical AI.")
 
-# --- Comparison: Before vs After Mitigation ---
-baseline_metrics = results['LogisticRegression']
-
-comparison_df = pd.DataFrame([baseline_metrics, mit_res],
-                             index=['Before Mitigation', 'After Mitigation']).T
-
-display(comparison_df)
-
-# Visualize key metrics
-metrics_to_plot = ['accuracy', 'statistical_parity_diff', 'equal_opportunity_diff', 'disparate_impact']
-
-fig, axes = plt.subplots(2, 2, figsize=(10, 8))
-axes = axes.flatten()
-
-for i, metric in enumerate(metrics_to_plot):
-    comparison_df.loc[metric].plot(kind='bar', ax=axes[i], color=['#007acc', '#009e73'])
-    axes[i].set_title(metric.replace('_', ' ').title())
-    axes[i].set_ylabel('Score')
-    axes[i].set_xticklabels(['Before', 'After'], rotation=0)
-
-plt.suptitle('Model Performance & Fairness: Before vs After Mitigation', fontsize=14)
-plt.tight_layout(rect=[0, 0, 1, 0.96])
-plt.show()
-
-print("Interpretation:")
-print("- ↓ SPD & EOD after mitigation => improved fairness.")
-print("- DI closer to 1 => improved fairness balance.")
-print("- Slight accuracy drop acceptable for ethical AI.")
-<Figure size 1000x800 with 4 Axes><img width="989" height="789" alt="image" src="https://github.com/user-attachments/assets/120d725f-36b4-4309-86be-10940de13f75" />
-Interpretation:
-- ↓ SPD & EOD after mitigation => improved fairness.
-- DI closer to 1 => improved fairness balance.
-- Slight accuracy drop acceptable for ethical AI.
 
 ## Conclusion
 
@@ -197,8 +163,7 @@ Interpretation:
 - Try EqualizedOdds constraint for deeper fairness trade-offs.
 - Compare with AIF360 Reweighing preprocessing method.
 - Perform k-fold validation and interpretability analysis (SHAP/LIME).
+
 import joblib
 joblib.dump(model, "full_fair_credit_model.pkl")
 joblib.dump(preprocessor, "full_preprocessor.pkl")
-['full_preprocessor.pkl']
-
